@@ -1,0 +1,304 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>code-quality</groupId>
+		<artifactId>code-quality-modules</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>module1</artifactId>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- These properties will be set by the Maven Dependency plugin -->
+		<!-- Change to jdk7 if using Java 7 -->
+		<annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
+		<annotatedJdk8>${org.checkerframework:jdk8:jar}</annotatedJdk8>
+		<!-- The type annotations compiler is required if using Java 7. -->
+		<!-- Uncomment the following line if using Java 7. -->
+		<!-- <typeAnnotationsJavac>${org.checkerframework:compiler:jar}</typeAnnotationsJavac> -->
+		<jdk.source>1.8</jdk.source>
+		<jdk.target>1.8</jdk.target>
+		<java.version>1.8</java.version>
+		<checker.version>1.9.10</checker.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>${jdk.source}</maven.compiler.source>
+		<maven.compiler.target>${jdk.target}</maven.compiler.target>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- annotations from the Checker Framework: nullness, interning, locking, 
+				... -->
+			<dependency>
+				<groupId>org.checkerframework</groupId>
+				<artifactId>checker-qual</artifactId>
+				<version>${checker.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.checkerframework</groupId>
+				<artifactId>checker</artifactId>
+				<version>${checker.version}</version>
+			</dependency>
+			<!-- The type annotations compiler - uncomment if using Java 7 -->
+			<!-- <dependency> <groupId>org.checkerframework</groupId> <artifactId>compiler</artifactId> 
+				<version>${checker.version}</version> </dependency> -->
+			<!-- The annotated JDK to use (change to jdk7 if using Java 7) -->
+			<dependency>
+				<groupId>org.checkerframework</groupId>
+				<artifactId>jdk8</artifactId>
+				<version>${checker.version}</version>
+			</dependency>
+			<!-- <dependency> <groupId>org.checkerframework</groupId> <artifactId>javacutil</artifactId> 
+				<version>${checker.version}</version> </dependency> <dependency> <groupId>org.checkerframework</groupId> 
+				<artifactId>dataflow</artifactId> <version>${checker.version}</version> </dependency> -->
+		</dependencies>
+	</dependencyManagement>
+
+
+	<dependencies>
+		<!-- annotations from the Checker Framework: nullness, interning, locking, 
+			... -->
+		<dependency>
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker-qual</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker</artifactId>
+		</dependency>
+		<!-- The type annotations compiler - uncomment if using Java 7 -->
+		<!-- <dependency> <groupId>org.checkerframework</groupId> <artifactId>compiler</artifactId> 
+			<version>${checker.version}</version> </dependency> -->
+		<!-- The annotated JDK to use (change to jdk7 if using Java 7) -->
+		<dependency>
+			<groupId>org.checkerframework</groupId>
+			<artifactId>jdk8</artifactId>
+		</dependency>
+		<!-- <dependency> <groupId>org.checkerframework</groupId> <artifactId>javacutil</artifactId> 
+			<version>${checker.version}</version> </dependency> <dependency> <groupId>org.checkerframework</groupId> 
+			<artifactId>dataflow</artifactId> <version>${checker.version}</version> </dependency> -->
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>findbugs-maven-plugin</artifactId> 
+					<version>3.0.3</version> <configuration> <pluginList>fb-contrib-6.4.3.jar</pluginList> 
+					<threshold>Low</threshold> <effort>Max</effort> </configuration> </plugin> 
+					<plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId> 
+					<version>2.19.1</version> </plugin> -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-compiler-plugin
+										</artifactId>
+										<versionRange>[3.1,)</versionRange>
+										<goals>
+											<goal>compile</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<!-- This plugin will set properties values using dependency information -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>${jdk.source}</source>
+					<target>${jdk.target}</target>
+					<failOnError>false</failOnError>
+					<!-- 
+					<compilerId>javac-with-errorprone</compilerId> -->
+					<forceJavacCompilerUse>true</forceJavacCompilerUse>
+					<fork>true</fork>
+					<annotationProcessors>
+						<!-- Add all the checkers you want to enable here -->
+						<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+					</annotationProcessors>
+					<compilerArgs>
+						<!-- location of the annotated JDK, which comes from a Maven dependency -->
+						<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+						<!-- Uncomment the following line if using Java 7. -->
+						<arg>-J-Xbootclasspath/p:${typeAnnotationsJavac}</arg>
+						<arg>-Alint</arg>
+						<arg>-AprintErrorStack</arg>
+						<arg>-XDTA:spacesincomments</arg>
+					</compilerArgs>
+
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-javac-errorprone</artifactId>
+						<version>2.5</version>
+					</dependency>
+					<!-- override plexus-compiler-javac-errorprone's dependency on Error 
+						Prone with the latest version -->
+					<dependency>
+						<groupId>com.google.errorprone</groupId>
+						<artifactId>error_prone_core</artifactId>
+						<version>2.0.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>1.3.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.3</version>
+				<configuration>
+					<debug>true</debug>
+					<effort>Max</effort>
+					<pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList>
+					<threshold>Low</threshold>
+					<includeTests>true</includeTests>
+					<!-- <excludeFilterFile>qc/findbugs-exclude.xml</excludeFilterFile> 
+						<includeFilterFile>findbugs-include.xml</includeFilterFile> -->
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.4</version>
+				<configuration>
+					<targetJdk>${jdk.target}</targetJdk>
+					<rulesets>
+						<ruleset>qc/pmd_rules.xml</ruleset>
+					</rulesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.2</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>1.3.3</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+					<skipEmptyReport>false</skipEmptyReport>
+				</configuration>
+			</plugin>
+
+			<!--FINDBUGS -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.3</version>
+				<configuration>
+					<debug>true</debug>
+					<effort>Max</effort>
+					<pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList>
+					<!-- <pluginList>qc/fb-contrib-6.2.0.jar, qc/findsecbugs-plugin-1.4.1.jar</pluginList> -->
+					<threshold>Low</threshold>
+					<includeTests>true</includeTests>
+					<skipEmptyReport>false</skipEmptyReport>
+					<!-- <excludeFilterFile>qc/findbugs-exclude.xml</excludeFilterFile> 
+						<includeFilterFile>findbugs-include.xml</includeFilterFile> -->
+				</configuration>
+			</plugin>
+
+			<!--PMD -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.4</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>pmd</report>
+							<!--<report>cpd</report> -->
+						</reports>
+					</reportSet>
+				</reportSets>
+				<configuration>
+					<targetJdk>${jdk.target}</targetJdk>
+					<rulesets>
+						<ruleset>qc/pmd_rules.xml</ruleset>
+					</rulesets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+</project>
