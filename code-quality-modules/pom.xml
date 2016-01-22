@@ -9,6 +9,18 @@
 		<module>build-tools</module>
 		<module>module1</module>
 	</modules>
+	<url>http://lifelongprogrammer.blogspot.com</url>
+
+	<developers>
+		<developer>
+			<id>jyuan</id>
+			<name>Jeffery Yuan</name>
+			<organization>Life Long Programmer</organization>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,6 +41,14 @@
 		<maven.compiler.source>${jdk.source}</maven.compiler.source>
 		<maven.compiler.target>${jdk.target}</maven.compiler.target>
 	</properties>
+
+	<distributionManagement>
+		<site>
+			<id>packt</id>
+			<url>file:///${project.build.directory}/staging</url>
+		</site>
+	</distributionManagement>
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- annotations from the Checker Framework: nullness, interning, locking, 
@@ -94,6 +114,43 @@
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.3</version>
+					<configuration>
+						<source>${jdk.source}</source>
+						<target>${jdk.target}</target>
+						<failOnError>false</failOnError>
+						<!-- error prone and checker don't work together <compilerId>javac-with-errorprone</compilerId> -->
+						<forceJavacCompilerUse>true</forceJavacCompilerUse>
+						<fork>true</fork>
+						<!-- Add all the checkers you want to enable here -->
+						<annotationProcessors>
+							<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+						</annotationProcessors>
+						<compilerArgs>
+							<!-- location of the annotated JDK, which comes from a Maven dependency -->
+							<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+							<!-- Uncomment the following line if using Java 7. -->
+							<arg>-J-Xbootclasspath/p:${typeAnnotationsJavac}</arg>
+							<arg>-Alint</arg>
+							<arg>-AprintErrorStack</arg>
+							<arg>-XDTA:spacesincomments</arg>
+							<arg>-Awarns</arg>
+						</compilerArgs>
+
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-javac-errorprone</artifactId>
+							<version>2.5</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+
+				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
@@ -139,48 +196,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>${jdk.source}</source>
-					<target>${jdk.target}</target>
-					<failOnError>false</failOnError>
-					<!-- 
-					<compilerId>javac-with-errorprone</compilerId> -->
-					<forceJavacCompilerUse>true</forceJavacCompilerUse>
-					<fork>true</fork>
-					<annotationProcessors>
-						<!-- Add all the checkers you want to enable here -->
-						<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
-					</annotationProcessors>
-					<compilerArgs>
-						<!-- location of the annotated JDK, which comes from a Maven dependency -->
-						<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
-						<!-- Uncomment the following line if using Java 7. -->
-						<arg>-J-Xbootclasspath/p:${typeAnnotationsJavac}</arg>
-						<arg>-Alint</arg>
-						<arg>-AprintErrorStack</arg>
-						<arg>-XDTA:spacesincomments</arg>
-					</compilerArgs>
-
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-javac-errorprone</artifactId>
-						<version>2.5</version>
-					</dependency>
-					<!-- override plexus-compiler-javac-errorprone's dependency on Error 
-						Prone with the latest version -->
-					<dependency>
-						<groupId>com.google.errorprone</groupId>
-						<artifactId>error_prone_core</artifactId>
-						<version>2.0.7</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 
 			<plugin>
 				<groupId>org.owasp</groupId>
@@ -201,7 +216,7 @@
 				<configuration>
 					<debug>true</debug>
 					<effort>Max</effort>
-					<pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList>
+					<!-- <pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList> -->
 					<threshold>Low</threshold>
 					<includeTests>true</includeTests>
 					<!-- <excludeFilterFile>qc/findbugs-exclude.xml</excludeFilterFile> 
@@ -215,9 +230,6 @@
 				<version>3.4</version>
 				<configuration>
 					<targetJdk>${jdk.target}</targetJdk>
-					<rulesets>
-						<ruleset>qc/pmd_rules.xml</ruleset>
-					</rulesets>
 				</configuration>
 			</plugin>
 
@@ -237,22 +249,23 @@
 	<reporting>
 		<plugins>
 			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
-				<version>1.3.3</version>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>aggregate</report>
-						</reports>
-					</reportSet>
-				</reportSets>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javancss-maven-plugin</artifactId>
+				<version>2.1</version>
 			</plugin>
-
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.6</version>
+			</plugin>
+			<!-- time consuming <plugin> <groupId>org.owasp</groupId> <artifactId>dependency-check-maven</artifactId> 
+				<version>1.3.3</version> <reportSets> <reportSet> <reports> <report>aggregate</report> 
+				</reports> </reportSet> </reportSets> </plugin> -->
 			<plugin>
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>2.5</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -268,11 +281,12 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<version>3.0.3</version>
+				<!-- <reportSets> <reportSet> <reports> <report>findbugs</report> </reports> 
+					</reportSet> </reportSets> -->
 				<configuration>
 					<debug>true</debug>
 					<effort>Max</effort>
-					<pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList>
-					<!-- <pluginList>qc/fb-contrib-6.2.0.jar, qc/findsecbugs-plugin-1.4.1.jar</pluginList> -->
+					<!-- <pluginList>fb-contrib-6.4.3.jar,findsecbugs-plugin-1.4.4.jar</pluginList> -->
 					<threshold>Low</threshold>
 					<includeTests>true</includeTests>
 					<skipEmptyReport>false</skipEmptyReport>
@@ -290,16 +304,49 @@
 					<reportSet>
 						<reports>
 							<report>pmd</report>
-							<!--<report>cpd</report> -->
+							<report>cpd</report>
 						</reports>
 					</reportSet>
 				</reportSets>
 				<configuration>
 					<targetJdk>${jdk.target}</targetJdk>
-					<rulesets>
-						<ruleset>qc/pmd_rules.xml</ruleset>
-					</rulesets>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<reportSets>
+						<reportSet>
+							<reports>
+								<report>javadoc</report>
+								<report>test-javadoc</report>
+							</reports>
+						</reportSet>
+						<reportSet>
+							<id>aggregate</id>
+							<inherited>false</inherited>
+							<reports>
+								<report>aggregate</report>
+							</reports>
+						</reportSet>
+					</reportSets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.17</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 		</plugins>
 	</reporting>
